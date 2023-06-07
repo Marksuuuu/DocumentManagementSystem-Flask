@@ -4,9 +4,24 @@ $(document).ready(function(){
 	});
 
 	function login() {
-		var email = $('#personEmail').val()
+		var username = $('#personUsername').val()
 		var password = $('#personPassword').val()
-		console.log(password)
+		
+
+		var formData = new FormData();
+		formData.append('username',username);
+		formData.append('password', password);
+
+		$.ajax({
+			url:'/login',
+			data:formData,
+			method: 'POST',
+			contentType: false,
+			processData: false,
+			success: function(){
+
+			}
+		});
 
 	}
 });
