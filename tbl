@@ -1,0 +1,10 @@
+CREATE TABLE login_details_tbl (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(255),
+    firstname VARCHAR(255),
+    lastname VARCHAR(255),
+    password VARCHAR(255),
+    user_role INTEGER,
+    profile VARCHAR(255),
+    email VARCHAR(255)
+);
