@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>asd</title>
+  <link rel="stylesheet" href="{{url_for('static', filename='assets/css/bootstrap.min.css')}}">
+  <link rel="stylesheet" href="{{url_for('static', filename='assets/css/style.css')}}">
+  <link
+  rel="shortcut icon"
+  href="{{url_for('static', filename='assets/img/favicon/favicon.ico') }}"
+  type="image/x-icon"
+  />  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+  <!--Main Navigation-->
+  <header class="p-3 mb-3 border-bottom">
+    <div class="container">
+      <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+        <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-dark text-decoration-none">
+          <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"></use></svg>
+        </a>
+
+        <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+          <li><a href="#" class="nav-link px-2 link-secondary">Overview</a></li>
+          <li><a href="#" class="nav-link px-2 link-dark">Inventory</a></li>
+          <li><a href="#" class="nav-link px-2 link-dark">Customers</a></li>
+          <li><a href="#" class="nav-link px-2 link-dark">Products</a></li>
+        </ul>
+
+        <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
+          <input type="search" class="form-control" placeholder="Search..." aria-label="Search">
+        </form>
+        {% block content %}
+        <span>Welcome, {{ current_user.username }}</span>
+        <div class="dropdown text-end">
+          <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+
+
+            {% if profile %}
+            <img src="{{ url_for('static', filename=profile) }}" alt="Profile Image" width="32" height="32" class="rounded-circle">
+            {% endif %}
+            <!-- Rest of your user template content -->
+            
+          </a>
+          <ul class="dropdown-menu text-small" aria-labelledby="dropdownUser1">
+            <li><a class="dropdown-item" href="{{url_for('view_users')}}">Users</a></li>
+            <li><a class="dropdown-item" href="{{url_for('uploadProducts')}}">Upload Products</a></li>
+            <li><a class="dropdown-item" href="#">Profile</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{{url_for('logout')}}">Sign out</a></li>
+          </ul>
+        </div>
+        {% endblock %}
+      </div>
+    </div>
+  </header>
+  <!--Main Navigation-->
+
+  <!--Main layout-->
+  <main  style="margin-top: 58px;">
+    <div class="container" style="margin-right: 20%;">
+      <div >
+       <div class="d-flex flex-row align-items-center">
+        <div  class="form-outline flex-fill mb-0">
+          <input type="text" class="form-control form-control" name='productName' id="productName"
+          placeholder="Product Name">
+          <label class="form-label" for="productName">Your Product Name</label>
+
+        </div>
+      </div>
+
+      <div class="d-flex flex-row align-items-center">
+        <div  class="form-outline flex-fill mb-0">
+          <input type="number" class="form-control form-control" name='productCount' id="productCount"
+          placeholder="Product Count">
+          <label class="form-label" for="productCount">Product Count</label>
+
+        </div>
+      </div>
+
+      <div class="d-flex flex-row align-items-center">
+        <div  class="form-outline flex-fill mb-0">
+          <input type="file" class="form-control form-control" name='fileUploaded' id="fileUploaded"
+          placeholder="File">
+          <label class="form-label" for="fileUploaded">Product Image</label>
+
+        </div>
+      </div>
+
+      <div class="d-flex flex-row align-items-center">
+        <div  class="form-outline flex-fill mb-0">
+          <input type="number" class="form-control form-control" name='productPrice' id="productPrice"
+          placeholder="Product Price">
+          <label class="form-label" for="productPrice">Product Price</label>
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-primary" style="float: right;">SUBMIT</button>
+
+
+    </div>
+  </div>
+</main>
+<!--Main layout-->
+</body>
+<script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="{{url_for('static', filename='assets/js/bootstrap.bundle.min.js') }}"></script>
+</html>
+
+
