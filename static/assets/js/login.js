@@ -1,27 +1,26 @@
-$(document).ready(function(){
-	$('#login').click(function(){
-		login()
-	});
-
-	function login() {
-		var username = $('#personUsername').val()
-		var password = $('#personPassword').val()
-		
-
-		var formData = new FormData();
-		formData.append('username',username);
-		formData.append('password', password);
-
-		$.ajax({
-			url:'/login',
-			data:formData,
-			method: 'POST',
-			contentType: false,
-			processData: false,
-			success: function(){
-
-			}
-		});
-
-	}
-});
+function submitForm(event) {
+    event.preventDefault();
+    const username = document.getElementById('personUsername').value;
+    const password = document.getElementById('personPassword').value;
+    const data = {
+      username: username,
+      password: password
+    };
+    fetch('/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    }).then(response => {
+      if (response.ok) {
+        window.location.href = '/index?success=true';
+      } else {
+        response.json().then(data => {
+          alert(data.error);
+        });
+      }
+    }).catch(error => {
+      alert('An error occurred: ' + error);
+    });
+  }
