@@ -251,14 +251,16 @@ def myAccount():
 @app.route('/view_users')
 @login_required 
 def view_users():
+    user_id = current_user.id
     profile = current_user.profile
     add_dot = '../'+profile 
     role = current_user.role
+    print(role)
     firstname = current_user.firstname
     lastname = current_user.lastname
     email = current_user.email
     password = current_user.password
-    return render_template('user.html', profile=add_dot)
+    return render_template('user.html', profile=add_dot, role=role, firstname=firstname, password=password, user_id=user_id)
 
 
 @app.route('/admin')
@@ -278,6 +280,8 @@ def admin():
 @app.route('/user')
 @login_required  # Secure the route, only logged in users can access it
 def user():
+    user_id = current_user.id
+    print('id', user_id)
     profile = current_user.profile
     add_dot = '../'+profile 
     role = current_user.role
@@ -285,7 +289,7 @@ def user():
     lastname = current_user.lastname
     email = current_user.email
     password = current_user.password
-    return render_template('user.html', profile=add_dot)
+    return render_template('user.html', profile=add_dot, role=role, firstname=firstname, password=password, user_id=user_id)
 
 
 @app.route('/register', methods=['GET'])

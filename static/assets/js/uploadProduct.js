@@ -19,20 +19,27 @@ $(document).ready(function(){
 		formData.append('productDescription', productDescription);
 		formData.append('productTypes', productTypes);
 
-		$.ajax({
-			url: '/upload',
-			data: formData,
-			method: 'POST',
-			contentType: false,
-			processData: false,
-			beforeSend: function(){
+		forDataAjax('/upload', formData)
 
-			},
-			success: function(){
-
-			},
-		}).done(function(){
-
-		})
 	}
 })
+
+
+function forDataAjax(url,data){
+	$.ajax({
+		url: url,
+		data: data,
+		method: 'POST',
+		contentType: false,
+		processData: false,
+		beforeSend: function(){
+
+		},
+		success: function(){
+
+		},
+	}).done(function(){
+
+	})
+
+}
