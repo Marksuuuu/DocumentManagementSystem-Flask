@@ -8,3 +8,15 @@ CREATE TABLE login_details_tbl (
     profile VARCHAR(255),
     email VARCHAR(255)
 );
+
+
+CREATE TABLE product_details_tbl (
+    id SERIAL PRIMARY KEY,
+    productName VARCHAR(255),
+    productCount VARCHAR(255),
+    fileUploaded VARCHAR(255),
+    productPrice INTEGER,
+    productDescription VARCHAR(255),
+    productTypes VARCHAR(255)
+);
+

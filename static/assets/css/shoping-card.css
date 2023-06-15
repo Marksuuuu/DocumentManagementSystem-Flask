@@ -1,0 +1,61 @@
+/* Card container */
+#inventoryContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+/* Card */
+.card {
+  width: 300px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Card image */
+.card img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+/* Card body */
+.card .card-body {
+  padding: 20px;
+}
+
+/* Card title */
+.card .card-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* Card text */
+.card .card-text {
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+/* Card button */
+.card .card-button {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #333;
+  border: none;
+  color: #fff;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.card .card-button:hover {
+  background-color: #555;
+}

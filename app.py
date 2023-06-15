@@ -24,11 +24,15 @@ login_manager.login_view = 'login'
 
 
 class User(UserMixin):
-    def __init__(self, user_id, username, role, profile):
+    def __init__(self, user_id, username, firstname, lastname, password, role, profile, email):
         self.id = user_id
         self.username = username
+        self.firstname = firstname
+        self.lastname = lastname
+        self.password = password
         self.role = role
         self.profile = profile
+        self.email = email
 
 
 @login_manager.user_loader
@@ -39,8 +43,8 @@ def load_user(user_id):
             cur.execute("SELECT * FROM public.login_details_tbl WHERE id = %s", (user_id,))
             user_data = cur.fetchone()
             if user_data:
-                user_id, username, role, profile = user_data[0], user_data[1], user_data[5], user_data[6]
-                return User(user_id, username, role, profile)
+                user_id, username, firstname, lastname, password, role, profile, email = user_data[0],user_data[1],user_data[2], user_data[3], user_data[4], user_data[5], user_data[6], user_data[7]
+                return User(user_id, username, firstname, lastname, password, role, profile, email)
     return None
 
 
@@ -67,6 +71,27 @@ def getUsers():
             })
         cursor.close()
     return jsonify({'data': userData})
+
+
+@app.route('/inventory')
+def get_inventory():
+    with psycopg2.connect(**db_config) as conn:
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cursor.execute("SELECT * FROM public.product_details_tbl")
+        rows = cursor.fetchall()
+        category_data = []
+        for row in rows:
+            category_data.append({
+                'id': row[0],
+                'productName': row[1],
+                'productCount': row[2],
+                'fileUploaded': row[3],
+                'productPrice': row[4],
+                'productDescription': row[5],
+                'productTypes': row[6],
+            })
+        cursor.close()
+    return jsonify({'data': category_data})
 
 
 @app.route('/register', methods=['POST'])
@@ -97,6 +122,64 @@ def register_insert():
     return jsonify(msg)
 
 
+@app.route('/updateUserData', methods=['POST'])
+def update_user_data():
+    input_username = request.form['inputUsername']
+    input_first_name = request.form['inputFirstName']
+    input_last_name = request.form['inputLastName']
+    input_email_address = request.form['inputEmailAddress']
+    role = request.form['role']
+    password_id = request.form['passwordID']
+    user_id = request.form['userId']
+
+    if 'profileImg' in request.files:
+        profile_img = request.files['profileImg']
+        if profile_img.filename == '':
+            msg = 'No file selected.'
+        elif profile_img and allowed_file(profile_img.filename):
+            filename = secure_filename(profile_img.filename)
+            file_path = os.path.join('static/assets/img', filename).replace("\\", "/")
+            profile_img.save(file_path)
+
+            with psycopg2.connect(**db_config) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(f"UPDATE public.login_details_tbl SET username='{input_username}', firstname='{input_first_name}', lastname='{input_last_name}', password='{password_id}', profile='{file_path}', email='{input_email_address}' WHERE id = {user_id};")
+                    conn.commit()  # commit the transaction
+                    msg = 'INSERT SUCCESS'
+        else:
+            msg = 'Invalid file format. Only image files are allowed.'
+    else:
+        msg = 'Profile image not found in the request.'
+
+    return jsonify(msg)
+
+@app.route('/upload', methods=['POST'])
+def upload_insert():
+    productName = request.form['productName']
+    productCount = request.form['productCount']
+    fileUploaded = request.files['fileUploaded']
+    productPrice = request.form['productPrice']
+    productDescription = request.form['productDescription']
+    productTypes = request.form['productTypes']
+
+    if fileUploaded and allowed_file(fileUploaded.filename):
+        filename = secure_filename(fileUploaded.filename)
+        file_path = os.path.join('static/assets/img/products', filename).replace("\\", "/")
+        fileUploaded.save(file_path)
+
+        with psycopg2.connect(**db_config) as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "INSERT INTO public.product_details_tbl (productname, productcount, fileuploaded, productprice, productdescription, producttypes) VALUES (%s, %s, %s, %s, %s, %s)",
+                    (productName, productCount, file_path, productPrice, productDescription, productTypes))
+                conn.commit()  # commit the transaction
+                msg = "INSERT SUCCESS"
+    else:
+        msg = "Invalid file format. Only image files are allowed."
+
+    return jsonify(msg)
+
+
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
@@ -112,8 +195,8 @@ def login():
                 user_data = cur.fetchone()
 
         if user_data:
-            user_id, _, role, profile = user_data[0], user_data[1], user_data[5], user_data[6]
-            user = User(user_id, username, role, profile)
+            user_id, username, firstname, lastname, password, role, profile, email = user_data[0],user_data[1],user_data[2], user_data[3], user_data[4], user_data[5], user_data[6], user_data[7]
+            user = User(user_id, username, firstname, lastname, password, role, profile, email)
             login_user(user)  # Log in the user
 
             if role == 1:
@@ -133,12 +216,36 @@ def logout():
     return redirect(url_for('login'))
 
 
+@app.route('/viewInventory')
+@login_required
+def viewInventory():
+    profile = current_user.profile
+    role = current_user.role
+    add_dot = '../'+profile 
+    return render_template('inventory.html', profile=add_dot, role=role)
+
 @app.route('/uploadProducts')
 @login_required
 def uploadProducts():
     profile = current_user.profile
     add_dot = '../'+profile 
-    return render_template('uploadProducts.html', profile=add_dot)
+    role = current_user.role
+    return render_template('uploadProducts.html', profile=add_dot, role=role)
+
+
+@app.route('/myAccount')
+@login_required
+def myAccount():
+    user_id = current_user.id
+    print('id', user_id)
+    profile = current_user.profile
+    add_dot = '../'+profile 
+    role = current_user.role
+    firstname = current_user.firstname
+    lastname = current_user.lastname
+    email = current_user.email
+    password = current_user.password
+    return render_template('account.html', profile=add_dot, role=role, firstname=firstname, password=password, user_id=user_id)
 
 
 @app.route('/view_users')
@@ -146,6 +253,11 @@ def uploadProducts():
 def view_users():
     profile = current_user.profile
     add_dot = '../'+profile 
+    role = current_user.role
+    firstname = current_user.firstname
+    lastname = current_user.lastname
+    email = current_user.email
+    password = current_user.password
     return render_template('user.html', profile=add_dot)
 
 
@@ -155,16 +267,24 @@ def admin():
     # Admin logic here
     profile = current_user.profile
     add_dot = '../'+profile 
-    print(add_dot)
+    role = current_user.role
+    firstname = current_user.firstname
+    lastname = current_user.lastname
+    email = current_user.email
+    password = current_user.password
     return render_template('admin.html', profile=add_dot)
 
 
 @app.route('/user')
 @login_required  # Secure the route, only logged in users can access it
 def user():
-    profile = current_user.profile  # Get the profile image path from the current user
+    profile = current_user.profile
     add_dot = '../'+profile 
-    print(add_dot)
+    role = current_user.role
+    firstname = current_user.firstname
+    lastname = current_user.lastname
+    email = current_user.email
+    password = current_user.password
     return render_template('user.html', profile=add_dot)
 
 
