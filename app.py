@@ -5,6 +5,7 @@ import psycopg2.extras
 import os
 from werkzeug.utils import secure_filename
 import re
+import bcrypt
 
 app = Flask(__name__)
 app.secret_key = 'marksuuuu'  # Set a secret key for session management
@@ -96,15 +97,28 @@ def get_inventory():
 
 @app.route('/register', methods=['POST'])
 def register_insert():
-    username = request.form['personUsername']
-    firstname = request.form['firstname']
-    lastname = request.form['lastname']
-    email = request.form['email']
-    password = request.form['password']
-    uploaded_img = request.files['fileInput']
-    role = request.form['role']
+    try:
+        username = request.form['personUsername']
+        firstname = request.form['firstname']
+        lastname = request.form['lastname']
+        email = request.form['email']
+        password = request.form['password']
+        uploaded_img = request.files['fileInput']
+        role = request.form['role']
 
-    if uploaded_img and allowed_file(uploaded_img.filename):
+        # Check if all form fields are provided
+        if not (username and firstname and lastname and email and password and uploaded_img and role):
+            return jsonify({'error': 'Missing form fields'}), 400
+
+        # Generate a valid salt
+        salt = bcrypt.gensalt().decode('utf-8')
+
+        # Hash the password with the salt
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt.encode('utf-8')).decode('utf-8')
+
+        if uploaded_img.filename == '' or not allowed_file(uploaded_img.filename):
+            return jsonify({'error': 'Invalid file format. Only image files are allowed.'}), 400
+
         filename = secure_filename(uploaded_img.filename)
         file_path = os.path.join('static/assets/img', filename).replace("\\", "/")
         uploaded_img.save(file_path)
@@ -113,13 +127,16 @@ def register_insert():
             with conn.cursor() as cur:
                 cur.execute(
                     "INSERT INTO public.login_details_tbl (username, firstname, lastname, password, user_role, profile, email) VALUES (%s, %s, %s, %s, %s, %s, %s)",
-                    (username, firstname, lastname, password, role, file_path, email))
-                conn.commit()  # commit the transaction
+                    (username, firstname, lastname, hashed_password, role, file_path, email))
+                conn.commit()
                 msg = "INSERT SUCCESS"
-    else:
-        msg = "Invalid file format. Only image files are allowed."
+                return jsonify({'message': msg}), 200
 
-    return jsonify(msg)
+    except KeyError:
+        return jsonify({'error': 'Invalid form data'}), 400
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 @app.route('/updateUserData', methods=['POST'])
@@ -187,26 +204,27 @@ def login():
         username = request.form['username']
         password = request.form['password']
 
-        # Authenticate the user (perform your own validation logic here)
         with psycopg2.connect(**db_config) as conn:
             with conn.cursor() as cur:
-                cur.execute("SELECT * FROM public.login_details_tbl WHERE username = %s AND password = %s",
-                            (username, password))
+                cur.execute("SELECT * FROM public.login_details_tbl WHERE username = %s", (username,))
                 user_data = cur.fetchone()
 
         if user_data:
-            user_id, username, firstname, lastname, password, role, profile, email = user_data[0],user_data[1],user_data[2], user_data[3], user_data[4], user_data[5], user_data[6], user_data[7]
-            user = User(user_id, username, firstname, lastname, password, role, profile, email)
-            login_user(user)  # Log in the user
+            stored_password = user_data[4]  # Get the hashed password from the database
+            if bcrypt.checkpw(password.encode('utf-8'), stored_password.encode('utf-8')):
+                user_id, username, firstname, lastname, password, role, profile, email = user_data
+                user = User(user_id, username, firstname, lastname, password, role, profile, email)
+                login_user(user)
 
-            if role == 1:
-                return redirect(url_for('admin'))
+                if role == 1:
+                    return redirect(url_for('admin'))
+                else:
+                    return redirect(url_for('user'))
             else:
-                return redirect(url_for('user'))  # Redirect to the user route
-        else:
-            return jsonify("Invalid username or password")
+                return jsonify("Invalid username or password")
 
     return render_template('login.html')
+
 
 
 @app.route('/logout')
