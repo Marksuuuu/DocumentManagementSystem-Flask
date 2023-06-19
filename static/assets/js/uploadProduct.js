@@ -3,6 +3,14 @@ $(document).ready(function(){
 		uploadProduct()
 	});
 
+	$('#uploadBtn').click(function() {
+		var file = $('#csvFile')[0].files[0];
+		var formData = new FormData();
+		formData.append('file', file);
+		uploadUsingCsv('/process-csv', formData)
+		
+	});
+
 	function uploadProduct(){
 		var productName = $('#productName').val();
 		var productCount = $('#productCount').val();
@@ -19,13 +27,13 @@ $(document).ready(function(){
 		formData.append('productDescription', productDescription);
 		formData.append('productTypes', productTypes);
 
-		forDataAjax('/upload', formData)
+		uploadUsingInput('/upload', formData)
 
 	}
+
+
 })
-
-
-function forDataAjax(url,data){
+function uploadUsingInput(url,data){
 	$.ajax({
 		url: url,
 		data: data,
@@ -43,3 +51,30 @@ function forDataAjax(url,data){
 	})
 
 }
+
+
+function uploadUsingCsv(url,data){
+	$.ajax({
+		url: url,
+		data: data,
+		type: 'POST',
+		contentType: false,
+		processData: false,
+		success: function(data) {
+			var lines = data.split('\n');
+
+			$.each(lines, function(index, line) {
+				var columns = line.split(',');
+
+				$.each(columns, function(index, column) {
+					console.log(column);
+				});
+			});
+		},
+		error: function() {
+			console.log('Error occurred during CSV file upload.');
+		}
+	});
+
+}
+

@@ -38,14 +38,28 @@ $(document).ready(function() {
       });
     }
   });
+
+
+  $('#incrementCount').click(function() {
+    var count = parseInt($('#productCount').val());
+    $('#productCount').val(count + 1);
+  });
+
+  $('#decrementCount').click(function() {
+    var count = parseInt($('#productCount').val());
+    if (count > 1) {
+      $('#productCount').val(count - 1);
+    }
+  });
 });
 
 function getData(item) {
   // Function to handle button click and retrieve data
-  console.log('Product Name:', item.productName);
-  console.log('Product Count:', item.productCount);
-  console.log('Product Price:', item.productPrice);
-  console.log('Product Description:', item.productDescription);
+  $('#itemImage').attr('src', item.fileUploaded || '/static/assets/img/products/No-Image-Placeholder.svg');
+  $('#productName').text(item.productName);
+  $('#productCount').text('Count: ' + item.productCount);
+  $('#productPrice').text('Price: $' + item.productPrice);
+  $('#productDescription').text('Description: ' + item.productDescription);
 
   $('#dataModal').modal('show');
 }

@@ -182,6 +182,43 @@ def update_user_data():
     return jsonify(msg)
 
 
+@app.route('/process-csv', methods=['POST'])
+def process_csv():
+    file = request.files['file']
+    lines = file.read().decode('utf-8').split('\n')
+
+    # Process the CSV data and insert into the database table
+    for line in lines:
+        columns = line.split(',')
+        if len(columns) != 6:
+            # Handle the case where the number of columns is incorrect
+            continue  # Skip this row and move to the next
+
+        productName = columns[0]
+        productCount = columns[1]
+        file_path = columns[2]  
+        productPrice = columns[3]
+        productDescription = columns[4]
+        productTypes = columns[5]
+
+        # Validate productPrice as an integer
+        if not productPrice.isdigit():
+            # Handle the case where productPrice is not a valid integer
+            productPrice = 0  # Assign a default value or handle it as appropriate
+
+        # Execute the SQL query to insert data into the table
+        with psycopg2.connect(**db_config) as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "INSERT INTO public.product_details_tbl (productname, productcount, fileuploaded, productprice, productdescription, producttypes) VALUES (%s, %s, %s, %s, %s, %s)",
+                    (productName, productCount, file_path, int(productPrice), productDescription, productTypes))
+                conn.commit()  # commit the transaction
+                msg = "INSERT SUCCESS"
+
+    return jsonify(msg)
+
+
+
 @app.route('/upload', methods=['POST'])
 def upload_insert():
     productName = request.form['productName']
