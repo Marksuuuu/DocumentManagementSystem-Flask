@@ -1,5 +1,6 @@
 $(document).ready(function() {
   $.get('/inventory', function(response) {
+
     if (response.data) {
       var inventoryData = response.data;
 
@@ -23,6 +24,8 @@ $(document).ready(function() {
         $('<p>').addClass('card-text').text('Price: $' + item.productPrice).appendTo(cardBody);
 
         $('<p>').addClass('card-text').text('Description: ' + item.productDescription).appendTo(cardBody);
+
+        var itemId = $('<p>').addClass('test').css('display', 'none').text(item.id).appendTo(cardBody);
 
         var button = $('<button>').addClass('btn btn-primary').text('SHOW DETAILS');
         button.on('click', function() {
@@ -51,15 +54,61 @@ $(document).ready(function() {
       $('#productCount').val(count - 1);
     }
   });
+
+
+  $('#addTOCart').click(function() {
+
+
+    var itemImg = $('#itemImage').prop('src')
+    var prodCount = $('#productCount').val()
+    var productName = $('#productName').text()
+    var productPrice = $('#productPrice').text()
+    var data_id = $('#item-id').attr('item-id')
+    console.log(prodCount, productName, productPrice, data_id)
+
+    var formData = new FormData()
+
+    formData.append('itemImg', itemImg);
+    formData.append('prodCount', prodCount);
+    formData.append('productName', productName);
+    formData.append('productPrice', productPrice);
+
+
+    // addToCartInsert('/addtocart', formData)
+  });
+
+
+
 });
 
-function getData(item) {
-  // Function to handle button click and retrieve data
-  $('#itemImage').attr('src', item.fileUploaded || '/static/assets/img/products/No-Image-Placeholder.svg');
-  $('#productName').text(item.productName);
-  $('#productCount').text('Count: ' + item.productCount);
-  $('#productPrice').text('Price: $' + item.productPrice);
-  $('#productDescription').text('Description: ' + item.productDescription);
 
+function getData(item) {
+  var itemImg = $('#itemImage').attr('src', item.fileUploaded || '/static/assets/img/products/No-Image-Placeholder.svg');
+  var prodName = $('#productName').text(item.productName);
+  var prodCount =$('#productCount').text('Count: ' + item.productCount);
+  var prodPrice =$('#productPrice').text('Price: $' + item.productPrice);
+  var prodDesc =$('#productDescription').text('Description: ' + item.productDescription);
+  var data_id = $('#item-id').attr('item-id', item.id)
   $('#dataModal').modal('show');
+
 }
+
+function addToCartInsert(url,data) {
+  $.ajax({
+    url: url,
+    data: data,
+    method: 'POST',
+    processData: false,
+    contentType: false,
+    beforeSend: function(){
+
+    },
+    success: function(){
+
+    }
+  }).done(function(){
+
+  })
+}
+
+
