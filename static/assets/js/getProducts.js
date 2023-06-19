@@ -68,13 +68,14 @@ $(document).ready(function() {
 
     var formData = new FormData()
 
+    formData.append('data_id',data_id);
     formData.append('itemImg', itemImg);
     formData.append('prodCount', prodCount);
     formData.append('productName', productName);
     formData.append('productPrice', productPrice);
 
 
-    // addToCartInsert('/addtocart', formData)
+    addToCartInsert('/addtocart', formData)
   });
 
 

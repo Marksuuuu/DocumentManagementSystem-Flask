@@ -255,6 +255,43 @@ def upload_insert():
     return jsonify(msg)
 
 
+@app.route('/addtocart', methods=['POST'])
+def add_to_cart():
+    data_id = request.form['data_id']
+    prodCount = request.form['prodCount']
+    itemImg = request.files['itemImg']
+    productPrice = request.form['productPrice']
+    productName = request.form['productName']
+
+    # Check if the product already exists in the database
+    with psycopg2.connect(**db_config) as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT COUNT(*) FROM public.product_details_tbl WHERE productname = %s", (productName,))
+            count = cur.fetchone()[0]
+            if count > 0:
+                msg = "Product already exists in the database."
+                return jsonify(msg)
+
+    if fileUploaded and allowed_file(fileUploaded.filename):
+        filename = secure_filename(fileUploaded.filename)
+        file_path = os.path.join('static/assets/img/products', filename).replace("\\", "/")
+        fileUploaded.save(file_path)
+
+        with psycopg2.connect(**db_config) as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "INSERT INTO public.cart_details_tbl (itemid, productname, productcount, fileuploaded, productprice) VALUES (%s, %s, %s, %s, %s)",
+                    (data_id, prodCount, itemImg, productPrice, productName))
+                conn.commit()  # commit the transaction
+                msg = "INSERT SUCCESS"
+    else:
+        msg = "Invalid file format. Only image files are allowed."
+
+    return jsonify(msg)
+
+
+
+
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
