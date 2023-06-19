@@ -28,7 +28,7 @@ $(document).ready(function(){
 		var passwordID = $('#passwordID').val()
 		var profileImg = $('#profileImg')[0].files[0];
 		var userId = $('#user_data').attr('user-id');
-    	console.log('User ID:', userId);
+		console.log('User ID:', userId);
 
 		var formData = new FormData();
 
@@ -36,7 +36,6 @@ $(document).ready(function(){
 		formData.append('inputFirstName', inputFirstName);
 		formData.append('inputLastName', inputLastName);
 		formData.append('inputEmailAddress', inputEmailAddress);
-		formData.append('role', role);
 		formData.append('passwordID', passwordID);
 		formData.append('profileImg', profileImg);
 		formData.append('userId', userId);
@@ -47,28 +46,60 @@ $(document).ready(function(){
 })
 
 
-
-
-
-function fetchdata(url,data){
+function fetchdata(url, data) {
 	$.ajax({
 		url: url,
 		data: data,
 		method: 'POST',
 		processData: false,
 		contentType: false,
-		beforeSend: function(){
-
+		beforeSend: function() {
+			$('#waitMeDiv').waitMe({
+				effect: 'rotateplane',
+				text: 'Please wait...',
+				bg: 'rgba(255,255,255,0.7)',
+				color: '#435ebe',
+				maxSize: '',
+				waitTime: -1,
+				textPos: 'vertical',
+				fontSize: '',
+				source: ''
+			});
 		},
-
-	}).done(function(response){
-		console.log(response)
+	}).done(function(response) {
+		$('#waitMeDiv').waitMe('hide');
+		if (response === false) {
+			SwalNotification('warning', 'Warning', 'Profile Not Found!');
+		} else {
+			SwalNotification('success', 'Success', 'Updated Successfully!', response);
+		}
 		return response;
-	}).fail(function(response){
-		console.log(response)
-		return response
+	}).fail(function(response) {
+		SwalNotification('error', 'Error', 'Failed to Update!', response);
+		return response;
+	});
+}
 
-	})
+function SwalNotification(icon, title, text, data) {
+	Swal.fire({
+		icon: icon,
+		title: title,
+		text: text + ' ' + data,
+		showCancelButton: true,
+		confirmButtonColor: '#3085d6',
+		cancelButtonColor: '#d33',
+		confirmButtonText: 'OK!'
+	}).then((result) => {
+		if (result.isConfirmed && icon === 'success') {
+			Swal.fire('Updated!', 'Your Profile has been updated.', 'success');
+			location.reload();
+		}else{
+			Swal.fire('Error!', 'Your Profile has not been updated.', 'warning');
+			return false;
+		}
+	});
+}
 
+function CheckRole(role){
 
 }

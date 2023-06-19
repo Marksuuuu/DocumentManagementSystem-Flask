@@ -65,9 +65,11 @@ def getUsers():
         for data in user_datas:
             userData.append({
                 'id': data[0],
-                'fistname': data[1],
-                'lastname': data[2],
+                'username': data[1],
+                'firstname': data[2],
+                'lastname': data[3],
                 'user_role': data[5],
+                'user_pfp': data[6],
                 'email': data[7]
             })
         cursor.close()
@@ -145,8 +147,7 @@ def update_user_data():
     input_first_name = request.form['inputFirstName']
     input_last_name = request.form['inputLastName']
     input_email_address = request.form['inputEmailAddress']
-    role = request.form['role']
-    password_id = request.form['passwordID']
+    password = request.form['passwordID']  # New password entered by the user
     user_id = request.form['userId']
 
     if 'profileImg' in request.files:
@@ -160,15 +161,26 @@ def update_user_data():
 
             with psycopg2.connect(**db_config) as conn:
                 with conn.cursor() as cur:
-                    cur.execute(f"UPDATE public.login_details_tbl SET username='{input_username}', firstname='{input_first_name}', lastname='{input_last_name}', password='{password_id}', profile='{file_path}', email='{input_email_address}' WHERE id = {user_id};")
+                    if password:
+                        # Generate a valid salt
+                        salt = bcrypt.gensalt().decode('utf-8')
+
+                        # Hash the new password with the salt
+                        hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt.encode('utf-8')).decode('utf-8')
+
+                        cur.execute(f"UPDATE public.login_details_tbl SET username='{input_username}', firstname='{input_first_name}', lastname='{input_last_name}', password='{hashed_password}', profile='{file_path}', email='{input_email_address}' WHERE id = {user_id};")
+                    else:
+                        cur.execute(f"UPDATE public.login_details_tbl SET username='{input_username}', firstname='{input_first_name}', lastname='{input_last_name}', profile='{file_path}', email='{input_email_address}' WHERE id = {user_id};")
+
                     conn.commit()  # commit the transaction
-                    msg = 'INSERT SUCCESS'
+                    msg = 'UPDATE SUCCESS'
         else:
             msg = 'Invalid file format. Only image files are allowed.'
     else:
-        msg = 'Profile image not found in the request.'
+        msg = False
 
     return jsonify(msg)
+
 
 @app.route('/upload', methods=['POST'])
 def upload_insert():
@@ -178,6 +190,15 @@ def upload_insert():
     productPrice = request.form['productPrice']
     productDescription = request.form['productDescription']
     productTypes = request.form['productTypes']
+
+    # Check if the product already exists in the database
+    with psycopg2.connect(**db_config) as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT COUNT(*) FROM public.product_details_tbl WHERE productname = %s", (productName,))
+            count = cur.fetchone()[0]
+            if count > 0:
+                msg = "Product already exists in the database."
+                return jsonify(msg)
 
     if fileUploaded and allowed_file(fileUploaded.filename):
         filename = secure_filename(fileUploaded.filename)

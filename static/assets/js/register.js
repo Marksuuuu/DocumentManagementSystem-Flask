@@ -56,6 +56,8 @@ $(document).ready(function(){
 				var password = $('#personPassword').val('')
 				var repeat_password = $('#personRepeatPassword').val('')
 				var role = $('#role').val('')
+				location.reload(); 
+
 			},
 
 		}).done(function (){
