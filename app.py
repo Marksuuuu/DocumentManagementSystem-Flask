@@ -25,7 +25,7 @@ login_manager.login_view = 'login'
 
 
 class User(UserMixin):
-    def __init__(self, user_id, username, firstname, lastname, password, role, profile, email):
+    def __init__(self, user_id, username, firstname, lastname, password, role, profile, email, itemInCartCount):
         self.id = user_id
         self.username = username
         self.firstname = firstname
@@ -34,6 +34,8 @@ class User(UserMixin):
         self.role = role
         self.profile = profile
         self.email = email
+        self.itemInCartCount = itemInCartCount
+
 
 
 @login_manager.user_loader
@@ -44,9 +46,13 @@ def load_user(user_id):
             cur.execute("SELECT * FROM public.login_details_tbl WHERE id = %s", (user_id,))
             user_data = cur.fetchone()
             if user_data:
-                user_id, username, firstname, lastname, password, role, profile, email = user_data[0],user_data[1],user_data[2], user_data[3], user_data[4], user_data[5], user_data[6], user_data[7]
-                return User(user_id, username, firstname, lastname, password, role, profile, email)
+                user_id, username, firstname, lastname, password, role, profile, email = user_data
+                cur.execute("SELECT count(*) FROM public.cart_details_tbl WHERE userid = %s", (user_id,))
+                cart_data = cur.fetchone()
+                itemInCartCount = cart_data[0] if cart_data else 0
+                return User(user_id, username, firstname, lastname, password, role, profile, email, itemInCartCount)
     return None
+
 
 
 def allowed_file(filename):
@@ -257,37 +263,29 @@ def upload_insert():
 
 @app.route('/addtocart', methods=['POST'])
 def add_to_cart():
-    data_id = request.form['data_id']
+    user_id = request.form['userId']
+    item_id = request.form['data_id']
     prodCount = request.form['prodCount']
-    itemImg = request.files['itemImg']
+    itemImg = request.form['itemImg']
     productPrice = request.form['productPrice']
     productName = request.form['productName']
 
-    # Check if the product already exists in the database
+    itemImgPath = '../static/assets/img/products/'+itemImg
+    # Remove "Price: 0" using regex
+    productPrice = re.sub(r'Price: ', '', productPrice)
+
+    print(productPrice)
+
     with psycopg2.connect(**db_config) as conn:
         with conn.cursor() as cur:
-            cur.execute("SELECT COUNT(*) FROM public.product_details_tbl WHERE productname = %s", (productName,))
-            count = cur.fetchone()[0]
-            if count > 0:
-                msg = "Product already exists in the database."
-                return jsonify(msg)
-
-    if fileUploaded and allowed_file(fileUploaded.filename):
-        filename = secure_filename(fileUploaded.filename)
-        file_path = os.path.join('static/assets/img/products', filename).replace("\\", "/")
-        fileUploaded.save(file_path)
-
-        with psycopg2.connect(**db_config) as conn:
-            with conn.cursor() as cur:
-                cur.execute(
-                    "INSERT INTO public.cart_details_tbl (itemid, productname, productcount, fileuploaded, productprice) VALUES (%s, %s, %s, %s, %s)",
-                    (data_id, prodCount, itemImg, productPrice, productName))
-                conn.commit()  # commit the transaction
-                msg = "INSERT SUCCESS"
-    else:
-        msg = "Invalid file format. Only image files are allowed."
+            cur.execute(
+                "INSERT INTO public.cart_details_tbl (itemid, userid, productname, productcount, fileuploaded, productprice) VALUES (%s, %s, %s, %s, %s, %s)",
+                (int(item_id), int(user_id), productName, int(prodCount), itemImgPath, int(productPrice)))
+            conn.commit()  # commit the transaction
+            msg = "INSERT SUCCESS"
 
     return jsonify(msg)
+
 
 
 
@@ -308,7 +306,8 @@ def login():
             stored_password = user_data[4]  # Get the hashed password from the database
             if bcrypt.checkpw(password.encode('utf-8'), stored_password.encode('utf-8')):
                 user_id, username, firstname, lastname, password, role, profile, email = user_data
-                user = User(user_id, username, firstname, lastname, password, role, profile, email)
+                itemInCartCount = 0  # Assign a value to itemInCartCount
+                user = User(user_id, username, firstname, lastname, password, role, profile, email, itemInCartCount)
                 login_user(user)
 
                 if role == 1:
@@ -322,6 +321,7 @@ def login():
 
 
 
+
 @app.route('/logout')
 @login_required
 def logout():
@@ -332,14 +332,19 @@ def logout():
 @app.route('/viewInventory')
 @login_required
 def viewInventory():
+    itemInCartCount = current_user.itemInCartCount
+    print(itemInCartCount)
+    user_id = current_user.id
     profile = current_user.profile
     role = current_user.role
     add_dot = '../'+profile 
-    return render_template('inventory.html', profile=add_dot, role=role)
+    print(user_id)
+    return render_template('inventory.html', profile=add_dot, role=role, user_id=user_id, itemInCartCount=itemInCartCount)
 
 @app.route('/uploadProducts')
 @login_required
 def uploadProducts():
+    itemInCartCount = current_user.itemInCartCount
     profile = current_user.profile
     add_dot = '../'+profile 
     role = current_user.role
@@ -349,6 +354,7 @@ def uploadProducts():
 @app.route('/myAccount')
 @login_required
 def myAccount():
+    itemInCartCount = current_user.itemInCartCount
     user_id = current_user.id
     print('id', user_id)
     profile = current_user.profile
@@ -364,11 +370,11 @@ def myAccount():
 @app.route('/view_users')
 @login_required 
 def view_users():
+    itemInCartCount = current_user.itemInCartCount
     user_id = current_user.id
     profile = current_user.profile
     add_dot = '../'+profile 
     role = current_user.role
-    print(role)
     firstname = current_user.firstname
     lastname = current_user.lastname
     email = current_user.email
@@ -379,7 +385,7 @@ def view_users():
 @app.route('/admin')
 @login_required  # Secure the route, only logged in users can access it
 def admin():
-    # Admin logic here
+    itemInCartCount = current_user.itemInCartCount
     profile = current_user.profile
     add_dot = '../'+profile 
     role = current_user.role
@@ -393,8 +399,8 @@ def admin():
 @app.route('/user')
 @login_required  # Secure the route, only logged in users can access it
 def user():
+    itemInCartCount = current_user.itemInCartCount
     user_id = current_user.id
-    print('id', user_id)
     profile = current_user.profile
     add_dot = '../'+profile 
     role = current_user.role

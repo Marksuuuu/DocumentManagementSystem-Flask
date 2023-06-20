@@ -23,9 +23,10 @@ CREATE TABLE product_details_tbl (
 CREATE TABLE cart_details_tbl (
     id SERIAL PRIMARY KEY,
     itemId INTEGER REFERENCES product_details_tbl(id),
+    userId INTEGER REFERENCES login_details_tbl(id),
     productName VARCHAR(255),
     productCount VARCHAR(255),
     fileUploaded VARCHAR(255),
-    productPrice INTEGER,
-    productTypes VARCHAR(255)
+    productPrice INTEGER
 );
+

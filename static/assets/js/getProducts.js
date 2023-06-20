@@ -5,7 +5,7 @@ $(document).ready(function() {
       var inventoryData = response.data;
 
       $.each(inventoryData, function(index, item) {
-        var card = $('<div>').addClass('card');
+        var card = $('<div style="width:300px">').addClass('card ');
 
         if (item.fileUploaded) {
           var image = $('<img>').addClass('card-img-top even-size').attr('src', item.fileUploaded);
@@ -21,7 +21,8 @@ $(document).ready(function() {
 
         $('<p>').addClass('card-text').text('Count: ' + item.productCount).appendTo(cardBody);
 
-        $('<p>').addClass('card-text').text('Price: $' + item.productPrice).appendTo(cardBody);
+        $('<p>').addClass('card-text').text('Price: ' + item.productPrice).appendTo(cardBody);
+        console.log(item.productPrice)
 
         $('<p>').addClass('card-text').text('Description: ' + item.productDescription).appendTo(cardBody);
 
@@ -56,43 +57,37 @@ $(document).ready(function() {
   });
 
 
-  $('#addTOCart').click(function() {
+$('#addTOCart').click(function() {
+  var itemImg = $('#itemImage').prop('src');
+  var prodCount = $('#productCount').val();
+  var productName = $('#productName').text();
+  var productPrice = $('#productPrice').text();
+  var data_id = $('#item-id').attr('item-id');
+  var userId = $('p').attr('user-id');
+  
+  // Extract the image filename only
+  var filename = itemImg.split('/').pop();
 
 
-    var itemImg = $('#itemImage').prop('src')
-    var prodCount = $('#productCount').val()
-    var productName = $('#productName').text()
-    var productPrice = $('#productPrice').text()
-    var data_id = $('#item-id').attr('item-id')
-    console.log(prodCount, productName, productPrice, data_id)
+  console.log(prodCount, productName, productPrice, data_id, filename, userId);
 
-    var formData = new FormData()
+  var formData = new FormData();
 
-    formData.append('data_id',data_id);
-    formData.append('itemImg', itemImg);
-    formData.append('prodCount', prodCount);
-    formData.append('productName', productName);
-    formData.append('productPrice', productPrice);
+  formData.append('userId', userId);
+  formData.append('data_id', data_id);
+  formData.append('itemImg', filename);
+  formData.append('prodCount', prodCount);
+  formData.append('productName', productName);
+  formData.append('productPrice', productPrice);
 
-
-    addToCartInsert('/addtocart', formData)
-  });
+  addToCartInsert('/addtocart', formData);
+});
 
 
 
 });
 
 
-function getData(item) {
-  var itemImg = $('#itemImage').attr('src', item.fileUploaded || '/static/assets/img/products/No-Image-Placeholder.svg');
-  var prodName = $('#productName').text(item.productName);
-  var prodCount =$('#productCount').text('Count: ' + item.productCount);
-  var prodPrice =$('#productPrice').text('Price: $' + item.productPrice);
-  var prodDesc =$('#productDescription').text('Description: ' + item.productDescription);
-  var data_id = $('#item-id').attr('item-id', item.id)
-  $('#dataModal').modal('show');
-
-}
 
 function addToCartInsert(url,data) {
   $.ajax({
@@ -105,6 +100,7 @@ function addToCartInsert(url,data) {
 
     },
     success: function(){
+      location.reload();
 
     }
   }).done(function(){
@@ -113,3 +109,14 @@ function addToCartInsert(url,data) {
 }
 
 
+
+function getData(item) {
+  var itemImg = $('#itemImage').attr('src', item.fileUploaded || '/static/assets/img/products/No-Image-Placeholder.svg');
+  var prodName = $('#productName').text(item.productName);
+  var prodCount =$('#productCount').text('Count: ' + item.productCount);
+  var prodPrice =$('#productPrice').text('Price: ' + item.productPrice).attr('prod-price-data', item.productPrice);
+  var prodDesc =$('#productDescription').text('Description: ' + item.productDescription);
+  var data_id = $('#item-id').attr('item-id', item.id)
+  $('#dataModal').modal('show');
+
+}

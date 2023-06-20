@@ -13,6 +13,7 @@
   https://cdn.jsdelivr.net/npm/sweetalert2@11.7.12/dist/sweetalert2.min.css
   " rel="stylesheet">
   <link rel="stylesheet" href="{{url_for('static', filename='assets/css/waitMe.min.css')}}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body id='bodyID'>
   <!--Main Navigation-->
@@ -35,7 +36,16 @@
         </form>
 
         {% block content %}
-        <span>Welcome, {{ current_user.username }}</span>
+        <span>Welcome, {{ current_user.username }} <p user-id='{{ current_user.id }}' style="display:none;"></p>
+          <button type="button" class="position-relative">
+            <i class="fas fa-shopping-cart">
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                {{ current_user.itemInCartCount }}
+                <span class="visually-hidden">unread messages</span>
+              </span>
+            </i>
+          </button> &nbsp;
+        </span>
         <div class="dropdown text-end">
           <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
             {% if profile %}
