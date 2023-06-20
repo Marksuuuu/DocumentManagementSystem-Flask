@@ -57,31 +57,31 @@ $(document).ready(function() {
   });
 
 
-$('#addTOCart').click(function() {
-  var itemImg = $('#itemImage').prop('src');
-  var prodCount = $('#productCount').val();
-  var productName = $('#productName').text();
-  var productPrice = $('#productPrice').text();
-  var data_id = $('#item-id').attr('item-id');
-  var userId = $('p').attr('user-id');
-  
+  $('#addTOCart').click(function() {
+    var itemImg = $('#itemImage').prop('src');
+    var prodCount = $('#productCount').val();
+    var productName = $('#productName').text();
+    var productPrice = $('#productPrice').text();
+    var data_id = $('#item-id').attr('item-id');
+    var userId = $('p').attr('user-id');
+
   // Extract the image filename only
-  var filename = itemImg.split('/').pop();
+    var filename = itemImg.split('/').pop();
 
 
-  console.log(prodCount, productName, productPrice, data_id, filename, userId);
+    console.log(prodCount, productName, productPrice, data_id, filename, userId);
 
-  var formData = new FormData();
+    var formData = new FormData();
 
-  formData.append('userId', userId);
-  formData.append('data_id', data_id);
-  formData.append('itemImg', filename);
-  formData.append('prodCount', prodCount);
-  formData.append('productName', productName);
-  formData.append('productPrice', productPrice);
+    formData.append('userId', userId);
+    formData.append('data_id', data_id);
+    formData.append('itemImg', filename);
+    formData.append('prodCount', prodCount);
+    formData.append('productName', productName);
+    formData.append('productPrice', productPrice);
 
-  addToCartInsert('/addtocart', formData);
-});
+    addToCartInsert('/addtocart', formData);
+  });
 
 
 
@@ -96,16 +96,20 @@ function addToCartInsert(url,data) {
     method: 'POST',
     processData: false,
     contentType: false,
-    beforeSend: function(){
-
+    beforeSend: function() {
     },
-    success: function(){
-      location.reload();
-
+  }).done(function(response) {
+    $('#waitMeDiv').waitMe('hide');
+    if (response === false) {
+      SwalNotification('warning', 'Warning', 'Profile Not Found!');
+    } else {
+      SwalNotification('success', 'Success', 'Updated Successfully!', response);
     }
-  }).done(function(){
-
-  })
+    return response;
+  }).fail(function(response) {
+    SwalNotification('error', 'Error', 'Failed to Update!', response);
+    return response;
+  });
 }
 
 
@@ -120,3 +124,25 @@ function getData(item) {
   $('#dataModal').modal('show');
 
 }
+
+
+
+function SwalNotification(icon, title, text, data) {
+  Swal.fire({
+    icon: icon,
+    title: title,
+    text: text + ' ' + data,
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'OK!'
+  }).then((result) => {
+    if (result.isConfirmed && icon === 'success') {
+      location.reload();
+    }else{
+      Swal.fire('Error!', 'Your Profile has not been updated.', 'warning');
+      return false;
+    }
+  });
+}
+

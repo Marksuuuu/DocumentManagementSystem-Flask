@@ -1,11 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
-from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+import bcrypt
+import os
 import psycopg2
 import psycopg2.extras
-import os
-from werkzeug.utils import secure_filename
 import re
-import bcrypt
+from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = 'marksuuuu'  # Set a secret key for session management
@@ -37,7 +37,6 @@ class User(UserMixin):
         self.itemInCartCount = itemInCartCount
 
 
-
 @login_manager.user_loader
 def load_user(user_id):
     # Load user from the database based on the user ID
@@ -54,12 +53,12 @@ def load_user(user_id):
     return None
 
 
-
 def allowed_file(filename):
     # Define a list of allowed file extensions
     allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'jfif'}
     # Check if the file extension is in the allowed list
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
+
 
 @app.route('/getUsers')
 def getUsers():
@@ -174,9 +173,11 @@ def update_user_data():
                         # Hash the new password with the salt
                         hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt.encode('utf-8')).decode('utf-8')
 
-                        cur.execute(f"UPDATE public.login_details_tbl SET username='{input_username}', firstname='{input_first_name}', lastname='{input_last_name}', password='{hashed_password}', profile='{file_path}', email='{input_email_address}' WHERE id = {user_id};")
+                        cur.execute(
+                            f"UPDATE public.login_details_tbl SET username='{input_username}', firstname='{input_first_name}', lastname='{input_last_name}', password='{hashed_password}', profile='{file_path}', email='{input_email_address}' WHERE id = {user_id};")
                     else:
-                        cur.execute(f"UPDATE public.login_details_tbl SET username='{input_username}', firstname='{input_first_name}', lastname='{input_last_name}', profile='{file_path}', email='{input_email_address}' WHERE id = {user_id};")
+                        cur.execute(
+                            f"UPDATE public.login_details_tbl SET username='{input_username}', firstname='{input_first_name}', lastname='{input_last_name}', profile='{file_path}', email='{input_email_address}' WHERE id = {user_id};")
 
                     conn.commit()  # commit the transaction
                     msg = 'UPDATE SUCCESS'
@@ -202,7 +203,7 @@ def process_csv():
 
         productName = columns[0]
         productCount = columns[1]
-        file_path = columns[2]  
+        file_path = columns[2]
         productPrice = columns[3]
         productDescription = columns[4]
         productTypes = columns[5]
@@ -222,7 +223,6 @@ def process_csv():
                 msg = "INSERT SUCCESS"
 
     return jsonify(msg)
-
 
 
 @app.route('/upload', methods=['POST'])
@@ -270,7 +270,7 @@ def add_to_cart():
     productPrice = request.form['productPrice']
     productName = request.form['productName']
 
-    itemImgPath = '../static/assets/img/products/'+itemImg
+    itemImgPath = '../static/assets/img/products/' + itemImg
     # Remove "Price: 0" using regex
     productPrice = re.sub(r'Price: ', '', productPrice)
 
@@ -285,10 +285,6 @@ def add_to_cart():
             msg = "INSERT SUCCESS"
 
     return jsonify(msg)
-
-
-
-
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -320,8 +316,6 @@ def login():
     return render_template('login.html')
 
 
-
-
 @app.route('/logout')
 @login_required
 def logout():
@@ -337,16 +331,18 @@ def viewInventory():
     user_id = current_user.id
     profile = current_user.profile
     role = current_user.role
-    add_dot = '../'+profile 
+    add_dot = '../' + profile
     print(user_id)
-    return render_template('inventory.html', profile=add_dot, role=role, user_id=user_id, itemInCartCount=itemInCartCount)
+    return render_template('inventory.html', profile=add_dot, role=role, user_id=user_id,
+                           itemInCartCount=itemInCartCount)
+
 
 @app.route('/uploadProducts')
 @login_required
 def uploadProducts():
     itemInCartCount = current_user.itemInCartCount
     profile = current_user.profile
-    add_dot = '../'+profile 
+    add_dot = '../' + profile
     role = current_user.role
     return render_template('uploadProducts.html', profile=add_dot, role=role)
 
@@ -358,28 +354,30 @@ def myAccount():
     user_id = current_user.id
     print('id', user_id)
     profile = current_user.profile
-    add_dot = '../'+profile 
+    add_dot = '../' + profile
     role = current_user.role
     firstname = current_user.firstname
     lastname = current_user.lastname
     email = current_user.email
     password = current_user.password
-    return render_template('account.html', profile=add_dot, role=role, firstname=firstname, password=password, user_id=user_id)
+    return render_template('account.html', profile=add_dot, role=role, firstname=firstname, password=password,
+                           user_id=user_id)
 
 
 @app.route('/view_users')
-@login_required 
+@login_required
 def view_users():
     itemInCartCount = current_user.itemInCartCount
     user_id = current_user.id
     profile = current_user.profile
-    add_dot = '../'+profile 
+    add_dot = '../' + profile
     role = current_user.role
     firstname = current_user.firstname
     lastname = current_user.lastname
     email = current_user.email
     password = current_user.password
-    return render_template('user.html', profile=add_dot, role=role, firstname=firstname, password=password, user_id=user_id)
+    return render_template('user.html', profile=add_dot, role=role, firstname=firstname, password=password,
+                           user_id=user_id)
 
 
 @app.route('/admin')
@@ -387,7 +385,7 @@ def view_users():
 def admin():
     itemInCartCount = current_user.itemInCartCount
     profile = current_user.profile
-    add_dot = '../'+profile 
+    add_dot = '../' + profile
     role = current_user.role
     firstname = current_user.firstname
     lastname = current_user.lastname
@@ -402,13 +400,14 @@ def user():
     itemInCartCount = current_user.itemInCartCount
     user_id = current_user.id
     profile = current_user.profile
-    add_dot = '../'+profile 
+    add_dot = '../' + profile
     role = current_user.role
     firstname = current_user.firstname
     lastname = current_user.lastname
     email = current_user.email
     password = current_user.password
-    return render_template('user.html', profile=add_dot, role=role, firstname=firstname, password=password, user_id=user_id)
+    return render_template('user.html', profile=add_dot, role=role, firstname=firstname, password=password,
+                           user_id=user_id)
 
 
 @app.route('/register', methods=['GET'])

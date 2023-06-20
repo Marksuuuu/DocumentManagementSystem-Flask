@@ -77,4 +77,3 @@ function uploadUsingCsv(url,data){
 	});
 
 }
-
