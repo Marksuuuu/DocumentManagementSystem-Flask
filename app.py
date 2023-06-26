@@ -225,6 +225,19 @@ def process_csv():
     return jsonify(msg)
 
 
+@app.route('/deleteProducts', methods=['POST'])
+def deleteProducts():
+    get_id = request.form['id']
+    print('asdasdasd',get_id)
+    with psycopg2.connect(**db_config) as conn:
+        with conn.cursor() as cur:
+            cur.execute('DELETE FROM public.product_details_tbl WHERE id = %s', (get_id,))
+            conn.commit()  # commit the transaction
+            msg = "DELETE SUCCESS"
+
+    return jsonify(msg)
+
+
 @app.route('/upload', methods=['POST'])
 def upload_insert():
     productName = request.form['productName']
@@ -392,6 +405,20 @@ def admin():
     email = current_user.email
     password = current_user.password
     return render_template('admin.html', profile=add_dot)
+
+
+@app.route('/displayProducts')
+@login_required  # Secure the route, only logged in users can access it
+def displayProducts():
+    itemInCartCount = current_user.itemInCartCount
+    profile = current_user.profile
+    add_dot = '../' + profile
+    role = current_user.role
+    firstname = current_user.firstname
+    lastname = current_user.lastname
+    email = current_user.email
+    password = current_user.password
+    return render_template('display_products.html', profile=add_dot)
 
 
 @app.route('/user')
