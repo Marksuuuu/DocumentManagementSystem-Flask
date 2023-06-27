@@ -28,27 +28,36 @@
                 </svg>
             </a>
 
+            {% if role == 1 %}
             <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-                <li><a href="#" class="nav-link px-2 link-secondary">Overview</a></li>
+                <li><a href="{{url_for('overview')}}" class="nav-link px-2 link-secondary">Overview</a></li>
                 <li><a href="{{url_for('viewInventory')}}" class="nav-link px-2 link-dark">Inventory</a></li>
                 <li><a href="#" class="nav-link px-2 link-dark">Customers</a></li>
-                <li><a href="#" class="nav-link px-2 link-dark">Products</a></li>
+                <li><a href="{{url_for('displayProducts')}}" class="nav-link px-2 link-dark">Products</a></li>
             </ul>
+            {% elif role == 0 %}
+
+            <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                <li><a href="{{url_for('overview')}}" class="nav-link px-2 link-secondary">Overview</a></li>
+                <li><a href="{{url_for('viewInventory')}}" class="nav-link px-2 link-dark">Inventory</a></li>
+            </ul>
+
+            {% endif %}
 
             <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
                 <input type="search" class="form-control" placeholder="Search..." aria-label="Search">
             </form>
             {% block content %}
             <span>Welcome, {{ current_user.username }} <p user-id='{{ current_user.id }}' style="display:none;"></p>
-					<button type="button" class="position-relative">
-						<i class="fas fa-shopping-cart">
-							<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-								{{ current_user.itemInCartCount }}
-								<span class="visually-hidden">unread messages</span>
-							</span>
-						</i>
-					</button> &nbsp;
-				</span>
+                   <button type="button" class="position-relative">
+                      <i class="fas fa-shopping-cart">
+                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            {{ current_user.itemInCartCount }}
+                            <span class="visually-hidden">unread messages</span>
+                        </span>
+                    </i>
+                </button> &nbsp;
+            </span>
             <div class="dropdown text-end">
                 <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser1"
                    data-bs-toggle="dropdown" aria-expanded="false">

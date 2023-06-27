@@ -33,13 +33,21 @@
                 </svg>
             </a>
 
+            {% if role == 1 %}
             <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-                <li><a href="#" class="nav-link px-2 link-secondary">Overview</a></li>
+                <li><a href="{{url_for('overview')}}" class="nav-link px-2 link-secondary">Overview</a></li>
                 <li><a href="{{url_for('viewInventory')}}" class="nav-link px-2 link-dark">Inventory</a></li>
                 <li><a href="#" class="nav-link px-2 link-dark">Customers</a></li>
-                <li><a href="#" class="nav-link px-2 link-dark">Products</a></li>
+                <li><a href="{{url_for('displayProducts')}}" class="nav-link px-2 link-dark">Products</a></li>
+            </ul>
+            {% elif role == 0 %}
+
+            <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                <li><a href="{{url_for('overview')}}" class="nav-link px-2 link-secondary">Overview</a></li>
+                <li><a href="{{url_for('viewInventory')}}" class="nav-link px-2 link-dark">Inventory</a></li>
             </ul>
 
+            {% endif %}
 
             <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
                 <input type="search" class="form-control" placeholder="Search..." aria-label="Search">
@@ -48,14 +56,14 @@
             <span>Welcome, {{ current_user.username }} <p user-id='{{ current_user.id }}' style="display:none;"></p>
                     <button type="button" class="position-relative" data-bs-toggle="modal"
                             data-bs-target="#staticBackdrop">
-                        <i class="fas fa-shopping-cart">
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                {{ current_user.itemInCartCount }}
-                                <span class="visually-hidden">unread messages</span>
-                            </span>
-                        </i>
-                    </button> &nbsp;
-                </span>
+                    <i class="fas fa-shopping-cart">
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            {{ current_user.itemInCartCount }}
+                            <span class="visually-hidden">unread messages</span>
+                        </span>
+                    </i>
+                </button> &nbsp;
+            </span>
 
 
             <div class="dropdown text-end">
@@ -96,7 +104,7 @@
 </header>
 <!--Main Navigation-->
 
-
+{% if role == 1 %}
 <!--Main layout-->
 <main style="margin-top: 58px;">
     <div class="container" style="margin-right: 20%;">
@@ -125,6 +133,28 @@
     </div>
 
 </main>
+{% elif role == 0 %}
+<span>WHAT ARE YOU DOING HERE YOU'RE NOT SUPPOSED TO BE HERE</span>
+{% endif %}
+
+
+<div class="modal fade" id="modalEdit" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                ...
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
 <!--Main layout-->
 </body>
 <script src="//code.jquery.com/jquery-3.6.0.min.js"></script>

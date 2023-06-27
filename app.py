@@ -321,7 +321,7 @@ def login():
                 if role == 1:
                     return redirect(url_for('admin'))
                 else:
-                    return redirect(url_for('user'))
+                    return redirect(url_for('overview'))
             else:
                 return jsonify("Invalid username or password")
 
@@ -356,7 +356,11 @@ def uploadProducts():
     profile = current_user.profile
     add_dot = '../' + profile
     role = current_user.role
-    return render_template('uploadProducts.html', profile=add_dot, role=role)
+    if current_user.role == 1:
+        return render_template('uploadProducts.html', profile=add_dot, role=role, firstname=firstname, password=password,
+                           user_id=user_id)
+    else:
+        return jsonify('WHY YOUR TRYING TO ACCESS THIS PAGE?')
 
 
 @app.route('/myAccount')
@@ -396,6 +400,7 @@ def view_users():
 @login_required  # Secure the route, only logged in users can access it
 def admin():
     itemInCartCount = current_user.itemInCartCount
+    user_id = current_user.id
     profile = current_user.profile
     add_dot = '../' + profile
     role = current_user.role
@@ -403,13 +408,33 @@ def admin():
     lastname = current_user.lastname
     email = current_user.email
     password = current_user.password
-    return render_template('admin.html', profile=add_dot)
+    if current_user.role == 1:
+        return render_template('admin.html', profile=add_dot, role=role, firstname=firstname, password=password,
+                           user_id=user_id)
+    else:
+        return jsonify('WHY YOUR TRYING TO ACCESS THIS PAGE?')
 
+
+@app.route('/overview')
+@login_required  # Secure the route, only logged in users can access it
+def overview():
+    itemInCartCount = current_user.itemInCartCount
+    user_id = current_user.id
+    profile = current_user.profile
+    add_dot = '../' + profile
+    role = current_user.role
+    firstname = current_user.firstname
+    lastname = current_user.lastname
+    email = current_user.email
+    password = current_user.password
+    return render_template('overview.html', profile=add_dot, role=role, firstname=firstname, password=password,
+                           user_id=user_id)
 
 @app.route('/displayProducts')
 @login_required  # Secure the route, only logged in users can access it
 def displayProducts():
     itemInCartCount = current_user.itemInCartCount
+    user_id = current_user.id
     profile = current_user.profile
     add_dot = '../' + profile
     role = current_user.role
@@ -417,7 +442,8 @@ def displayProducts():
     lastname = current_user.lastname
     email = current_user.email
     password = current_user.password
-    return render_template('display_products.html', profile=add_dot)
+    return render_template('display_products.html', profile=add_dot, role=role, firstname=firstname, password=password,
+                           user_id=user_id)
 
 
 @app.route('/user')

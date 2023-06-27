@@ -29,9 +29,11 @@ $(document).ready(function (){
 				{
 					data: null,
 					render: function (data, type, row) {
-						return '<button type="button" class="btn btn-success rounded-pill fa-solid fa-pen edit-btn" data-id="' + row.id + '"></button> ' +
-						'<button type="button" class="btn btn-danger rounded-pill fa-solid fa-trash delete-btn" data-id="' + row.id + '"></button> ';
-						
+						return '<div class="btn-group" role="group">'+
+						'<button type="button" class="btn btn-success rounded-pill fa-solid fa-pen edit-btn" data-id="' + row.id + '"></button> ' +
+						'<button type="button" class="btn btn-danger rounded-pill fa-solid fa-trash delete-btn" data-id="' + row.id + '"></button> '
+						'</div>'
+						;
 					}
 				},
 				]
@@ -59,6 +61,7 @@ $(document).ready(function (){
 			
 		})
 		$('#productContainer').on('click', '.edit-btn', function(){
+			$('#modalEdit').modal('show')
 			var id = $(this).attr('data-id');
 			var url = '/updateProducts';
 			var data = { id: id };
