@@ -12,41 +12,42 @@
     <link rel="stylesheet" href="{{url_for('static', filename='assets/css/shoping-card.css')}}">
     <link rel="stylesheet" href="{{url_for('static', filename='assets/css/jquery.dataTables.min.css')}}">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
-    
+
     <link
-    rel="shortcut icon"
-    href="{{url_for('static', filename='assets/img/favicon/favicon.ico') }}"
-    type="image/x-icon"
+            rel="shortcut icon"
+            href="{{url_for('static', filename='assets/img/favicon/favicon.ico') }}"
+            type="image/x-icon"
     />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"/>
+          integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
 </head>
 <body>
-    <!--Main Navigation-->
-    <header class="p-3 mb-3 border-bottom">
-        <div class="container">
-            <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
-                <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-dark text-decoration-none">
-                    <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap">
-                        <use xlink:href="#bootstrap"></use>
-                    </svg>
-                </a>
+<!--Main Navigation-->
+<header class="p-3 mb-3 border-bottom">
+    <div class="container">
+        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+            <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-dark text-decoration-none">
+                <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap">
+                    <use xlink:href="#bootstrap"></use>
+                </svg>
+            </a>
 
-                <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-                    <li><a href="#" class="nav-link px-2 link-secondary">Overview</a></li>
-                    <li><a href="{{url_for('viewInventory')}}" class="nav-link px-2 link-dark">Inventory</a></li>
-                    <li><a href="#" class="nav-link px-2 link-dark">Customers</a></li>
-                    <li><a href="#" class="nav-link px-2 link-dark">Products</a></li>
-                </ul>
+            <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                <li><a href="#" class="nav-link px-2 link-secondary">Overview</a></li>
+                <li><a href="{{url_for('viewInventory')}}" class="nav-link px-2 link-dark">Inventory</a></li>
+                <li><a href="#" class="nav-link px-2 link-dark">Customers</a></li>
+                <li><a href="#" class="nav-link px-2 link-dark">Products</a></li>
+            </ul>
 
 
-                <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
-                    <input type="search" class="form-control" placeholder="Search..." aria-label="Search">
-                </form>
-                {% block content %}
-                <span>Welcome, {{ current_user.username }} <p user-id='{{ current_user.id }}' style="display:none;"></p>
-                    <button type="button" class="position-relative" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+            <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
+                <input type="search" class="form-control" placeholder="Search..." aria-label="Search">
+            </form>
+            {% block content %}
+            <span>Welcome, {{ current_user.username }} <p user-id='{{ current_user.id }}' style="display:none;"></p>
+                    <button type="button" class="position-relative" data-bs-toggle="modal"
+                            data-bs-target="#staticBackdrop">
                         <i class="fas fa-shopping-cart">
                             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                                 {{ current_user.itemInCartCount }}
@@ -57,13 +58,12 @@
                 </span>
 
 
-
-                <div class="dropdown text-end">
-                    <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser1"
-                    data-bs-toggle="dropdown" aria-expanded="false">
+            <div class="dropdown text-end">
+                <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser1"
+                   data-bs-toggle="dropdown" aria-expanded="false">
                     {% if profile %}
                     <img src="{{ url_for('static', filename=profile) }}" alt="Profile Image" width="32" height="32"
-                    class="rounded-circle">
+                         class="rounded-circle">
                     {% endif %}
                     <!-- Rest of your user template content -->
 
@@ -99,12 +99,13 @@
 
 <!--Main layout-->
 <main style="margin-top: 58px;">
-    <div class="container" style="margin-right: 20%;"> <!-- Add a container around the table -->
-        <div class="row justify-content-center"> <!-- Add a row with center alignment -->
-            <div class="col-12"> <!-- Add a column to control width -->
-                <div class="card-container">
-                    <table class="table table-striped" id="productContainer">
-                        <thead>
+    <div class="container" style="margin-right: 20%;">
+        <div id="waitMeDiv">
+            <div class="row justify-content-center">
+                <div class="col-12">
+                    <div class="card-container">
+                        <table class="table table-striped" id="productContainer">
+                            <thead>
                             <tr>
                                 <th>ID</th>
                                 <th>Product Name</th>
@@ -115,9 +116,9 @@
                                 <th>Product Types</th>
                                 <th>Action</th>
                             </tr>
-                        </thead>
-                    </table>
-
+                            </thead>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

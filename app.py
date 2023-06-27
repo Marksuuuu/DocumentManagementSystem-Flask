@@ -226,16 +226,15 @@ def process_csv():
 
 
 @app.route('/deleteProducts', methods=['POST'])
-def deleteProducts():
-    get_id = request.form['id']
-    print('asdasdasd',get_id)
+def delete_products():
+    data = request.get_json()
+    id = data.get('id')
     with psycopg2.connect(**db_config) as conn:
         with conn.cursor() as cur:
-            cur.execute('DELETE FROM public.product_details_tbl WHERE id = %s', (get_id,))
-            conn.commit()  # commit the transaction
-            msg = "DELETE SUCCESS"
-
-    return jsonify(msg)
+            cur.execute(f'DELETE FROM public.product_details_tbl WHERE id = {id}')
+            conn.commit()
+            msg = 'DELETE SUCCESS'
+    return jsonify({'message': msg})
 
 
 @app.route('/upload', methods=['POST'])
