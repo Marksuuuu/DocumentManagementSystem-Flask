@@ -272,6 +272,43 @@ def upload_insert():
 
     return jsonify(msg)
 
+@app.route('/showCart', methods=['POST'])
+def showCart():
+    data = request.get_json()
+    id = data.get('userId')
+    with psycopg2.connect(**db_config) as conn:
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cursor.execute(f"""
+                SELECT 
+                    cdt.id as ID,
+                    cdt.productprice as PRODPRICE, 
+                    pdt.productname as PRODNAME, 
+                    cdt.productcount as PRODCOUNT, 
+                    cdt.fileuploaded as FILEUP, 
+                    pdt.productdescription as PRODDESC
+                FROM 
+                    public.product_details_tbl as pdt
+                INNER JOIN 
+                    public.cart_details_tbl as cdt
+                ON 
+                    cdt.itemid = pdt.id
+                LEFT JOIN 
+                    public.login_details_tbl as ldt ON ldt.id = cdt.userid
+                WHERE ldt.id = {id}
+            """)
+        rows = cursor.fetchall()
+        category_data = []
+        for row in rows:
+            category_data.append({
+                'ID': row[0],
+                'PRODPRICE': row[1],
+                'PRODNAME': row[2],
+                'PRODCOUNT': row[3],
+                'FILEUP': row[4],
+                'PRODDESC': row[5]
+            })
+        cursor.close()
+    return jsonify({'data': category_data})
 
 @app.route('/addtocart', methods=['POST'])
 def add_to_cart():

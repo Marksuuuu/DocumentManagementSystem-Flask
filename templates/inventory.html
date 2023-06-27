@@ -53,7 +53,7 @@
             </form>
             {% block content %}
             <span>Welcome, {{ current_user.username }} <p user-id='{{ current_user.id }}' style="display:none;"></p>
-                <button type="button" class="position-relative" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                <button type="button" class="position-relative" id='showCart' data-bs-target="#staticBackdrop">
                     <i class="fas fa-shopping-cart">
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                             {{ current_user.itemInCartCount }}

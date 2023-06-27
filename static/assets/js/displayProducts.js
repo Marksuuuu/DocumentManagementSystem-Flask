@@ -1,7 +1,5 @@
 $(document).ready(function (){
 	displayDataTbl()
-
-
 	function displayDataTbl() {
 		var table = $('#productContainer').DataTable({
 			ajax: '/inventory',
@@ -72,6 +70,7 @@ $(document).ready(function (){
 })
 
 function ajaxRequest(url, data) {
+	console.log(data)
 	$.ajax({
 		type: 'POST',
 		url: url,

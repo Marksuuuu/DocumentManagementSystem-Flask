@@ -1,14 +1,27 @@
 $(document).ready(function() {
-  $.get('/inventory', function(response) {
+  gerResponse()
 
-    if (response.data) {
-      var inventoryData = response.data;
+  $('#showCart').click(function(){
+    $('#staticBackdrop').modal('show')
+    var userId = $('p').attr('user-id');
+    var url = '/showCart';
+    var data = { userId : userId };
 
-      $.each(inventoryData, function(index, item) {
-        var card = $('<div style="width:300px">').addClass('card ');
+    showCartDetails(url, data)
 
-        if (item.fileUploaded) {
-          var image = $('<img>').addClass('card-img-top even-size').attr('src', item.fileUploaded);
+  })
+
+
+  function gerResponse(){
+    $.get('/inventory', function(response) {
+      if (response.data) {
+        var inventoryData = response.data;
+
+        $.each(inventoryData, function(index, item) {
+          var card = $('<div style="width:300px">').addClass('card ');
+
+          if (item.fileUploaded) {
+            var image = $('<img>').addClass('card-img-top even-size').attr('src', item.fileUploaded);
           card.append(image); // Append the image to the card
         } else {
           var noImage = $('<img>').addClass('card-img-top even-size').attr('src', '/static/assets/img/products/No-Image-Placeholder.svg');
@@ -40,9 +53,10 @@ $(document).ready(function() {
 
         card.appendTo('#itemContainer');
       });
-    }
-  });
+      }
+    });
 
+  }
 
   $('#incrementCount').click(function() {
     var count = parseInt($('#productCount').val());
@@ -86,6 +100,24 @@ $(document).ready(function() {
 
 
 });
+
+function showCartDetails(url,data) {
+  console.log('cluck')
+  
+  $.ajax({
+    type: 'POST',
+    url: url,
+    data: JSON.stringify(data),
+    contentType: 'application/json',
+    processData: false,
+    success: function(data) {
+        console.log('test',data)
+
+    }
+  })
+
+}
+
 
 
 
