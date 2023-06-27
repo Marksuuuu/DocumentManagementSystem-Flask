@@ -101,21 +101,68 @@ $(document).ready(function() {
 
 });
 
-function showCartDetails(url,data) {
-  console.log('cluck')
-  
+// Function to initialize DataTable
+function initializeDataTable() {
+  $('#cartTable').DataTable({
+    lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+  });
+}
+
+// Function to populate table rows and initialize DataTable
+function populateCartTable(responseData) {
+  console.log('test', responseData);
+
+  if (Array.isArray(responseData.data)) {
+    // Clear the existing table rows
+    $("#cartTable tbody").empty();
+
+    responseData.data.forEach(function(item) {
+      // Create a new row element
+      var newRow = $("<tr>");
+
+      // Add data to the row
+      newRow.append("<td>" + item.ID + "</td>");
+      newRow.append("<td>" + item.PRODPRICE + "</td>");
+      newRow.append("<td>" + item.PRODNAME + "</td>");
+      newRow.append("<td>" + item.PRODCOUNT + "</td>");
+      newRow.append("<td><img src='" + item.FILEUP + "' alt='Profile Picture' width='70' height='70'></td>");
+      newRow.append("<td>" + item.PRODDESC + "</td>");
+
+      // Append the row to the table body
+      $("#cartTable tbody").append(newRow);
+    });
+
+    // Check if DataTable is already initialized
+    if (!$.fn.DataTable.isDataTable('#cartTable')) {
+      // Initialize DataTable
+      initializeDataTable();
+    } else {
+      // Destroy and reinitialize DataTable
+      $('#cartTable').DataTable().destroy();
+      initializeDataTable();
+    }
+  } else {
+    console.error("Data is not an array:", responseData);
+  }
+}
+
+// Main function to fetch data and populate table
+function showCartDetails(url, data) {
+  console.log('cluck');
+
   $.ajax({
     type: 'POST',
     url: url,
     data: JSON.stringify(data),
     contentType: 'application/json',
     processData: false,
-    success: function(data) {
-        console.log('test',data)
-
+    success: function(responseData) {
+      populateCartTable(responseData);
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+      console.error("AJAX request failed:", textStatus, errorThrown);
     }
-  })
-
+  });
 }
 
 
