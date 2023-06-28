@@ -390,9 +390,15 @@ def viewInventory():
 @login_required
 def uploadProducts():
     itemInCartCount = current_user.itemInCartCount
+    user_id = current_user.id
+    print('id', user_id)
     profile = current_user.profile
     add_dot = '../' + profile
     role = current_user.role
+    firstname = current_user.firstname
+    lastname = current_user.lastname
+    email = current_user.email
+    password = current_user.password
     if current_user.role == 1:
         return render_template('uploadProducts.html', profile=add_dot, role=role, firstname=firstname, password=password,
                            user_id=user_id)
